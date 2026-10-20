@@ -37,7 +37,7 @@ public sealed class AppSettings
     public StartupWindowBehavior StartupBehavior { get; set; } = StartupWindowBehavior.ShowWindow;
 
     /// <summary>Closing the window keeps the tray icon alive instead of exiting.</summary>
-    public bool CloseToTray { get; set; } = true;
+    public bool CloseToTray { get; set; } = false;
 
     public bool EnableNotifications { get; set; } = true;
 
@@ -62,6 +62,9 @@ public sealed class AppSettings
     /// <summary>Extra age floor applied to every cleaning rule, in days.</summary>
     public int MinimumJunkAgeDays { get; set; }
 
+    /// <summary>Process names the user has explicitly approved for graceful closure in Gaming mode.</summary>
+    public List<string> GamingModeApprovedApps { get; set; } = [];
+
     public static AppSettings CreateDefault() => new();
 
     /// <summary>Clamps values into supported ranges so a hand edited file cannot break the app.</summary>
@@ -73,6 +76,11 @@ public sealed class AppSettings
 
         ExcludedPaths ??= [];
         ExcludedPaths = [.. ExcludedPaths.Where(path => !string.IsNullOrWhiteSpace(path)).Distinct(StringComparer.OrdinalIgnoreCase)];
+        GamingModeApprovedApps ??= [];
+        GamingModeApprovedApps = [.. GamingModeApprovedApps
+            .Where(name => !string.IsNullOrWhiteSpace(name))
+            .Select(name => Path.GetFileNameWithoutExtension(name.Trim()))
+            .Distinct(StringComparer.OrdinalIgnoreCase)];
 
         if (!Enum.IsDefined(Theme))
         {
@@ -105,6 +113,7 @@ public sealed class AppSettings
         ExcludedPaths = [.. ExcludedPaths],
         DeletePermanently = DeletePermanently,
         MinimumJunkAgeDays = MinimumJunkAgeDays,
+        GamingModeApprovedApps = [.. GamingModeApprovedApps],
     };
 
     public void CopyFrom(AppSettings other)
@@ -122,5 +131,6 @@ public sealed class AppSettings
         ExcludedPaths = [.. other.ExcludedPaths];
         DeletePermanently = other.DeletePermanently;
         MinimumJunkAgeDays = other.MinimumJunkAgeDays;
+        GamingModeApprovedApps = [.. other.GamingModeApprovedApps];
     }
 }

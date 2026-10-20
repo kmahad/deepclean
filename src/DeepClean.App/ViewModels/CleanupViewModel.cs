@@ -592,6 +592,7 @@ public sealed partial class CleanupViewModel : ObservableObject
         if (_elevation.TryRestartElevated(out var error))
         {
             _logger.LogInformation("Restarting elevated at the request of the user");
+            (Application.Current as App)?.PrepareForRestart();
             Application.Current?.Shutdown();
             return;
         }

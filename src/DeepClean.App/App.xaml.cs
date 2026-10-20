@@ -3,6 +3,7 @@ using DeepClean.App.Services;
 using DeepClean.App.ViewModels;
 using DeepClean.App.Views;
 using DeepClean.App.Views.Pages;
+using DeepClean.Core.Performance;
 using DeepClean.Core;
 using DeepClean.Core.Cleaning;
 using DeepClean.Core.Configuration;
@@ -10,6 +11,7 @@ using DeepClean.Core.Duplicates;
 using DeepClean.Core.Logging;
 using DeepClean.Core.Monitoring;
 using DeepClean.Platform.Monitoring;
+using DeepClean.Platform.Performance;
 using DeepClean.Platform.Security;
 using DeepClean.Platform.Startup;
 using DeepClean.Platform.Storage;
@@ -31,6 +33,16 @@ public partial class App : Application
     private ILogger<App>? _logger;
     private bool _isShuttingDown;
     private bool _isReportingException;
+
+    /// <summary>
+    /// Releases the single-instance mutex so a new instance (like an elevated one) can start
+    /// before this one has finished shutting down.
+    /// </summary>
+    public void PrepareForRestart()
+    {
+        _instanceMutex?.Dispose();
+        _instanceMutex = null;
+    }
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -83,6 +95,16 @@ public partial class App : Application
                 if (monitoring is not null)
                 {
                     monitoring.DisposeAsync().AsTask().GetAwaiter().GetResult();
+                }
+
+                var performance = _services.GetService<IPerformanceModeService>();
+                if (performance is not null)
+                {
+                    var restoreResult = performance.ApplyAsync(PerformanceMode.Normal, []).GetAwaiter().GetResult();
+                    if (!restoreResult.Succeeded)
+                    {
+                        _logger?.LogWarning("Restoring the original power plan at shutdown failed: {Message}", restoreResult.Message);
+                    }
                 }
 
                 var settings = _services.GetService<ISettingsStore>();
@@ -185,6 +207,7 @@ public partial class App : Application
         services.AddSingleton<IRecycleBinService, RecycleBinService>();
         services.AddSingleton<IDuplicateFinder, FileDuplicateFinder>();
         services.AddSingleton<IDuplicateCleaner, DuplicateCleaner>();
+        services.AddSingleton<IPerformanceModeService, WindowsPerformanceModeService>();
 
         services.AddSingleton<INavigationViewPageProvider, PageProvider>();
         services.AddSingleton<INavigationService>(provider =>
@@ -196,6 +219,7 @@ public partial class App : Application
         services.AddSingleton<CleanupViewModel>();
         services.AddSingleton<DuplicatesViewModel>();
         services.AddSingleton<SettingsViewModel>();
+        services.AddSingleton<PerformanceViewModel>();
         services.AddSingleton<LogsViewModel>();
 
         services.AddSingleton<DashboardPage>();
@@ -203,6 +227,7 @@ public partial class App : Application
         services.AddSingleton<DuplicatesPage>();
         services.AddSingleton<LogsPage>();
         services.AddSingleton<SettingsPage>();
+        services.AddSingleton<PerformancePage>();
 
         services.AddSingleton<MainWindow>();
     }
