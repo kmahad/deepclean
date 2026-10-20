@@ -101,6 +101,9 @@ public sealed partial class CleanupViewModel : ObservableObject
 
     private bool _loadSuspended;
 
+    /// <summary>1 while a Recycle Bin query is in flight; stops overlapping blocking shell calls.</summary>
+    private int _recycleBinQueryInFlight;
+
     public CleanupViewModel(
         ISystemCleaner cleaner,
         IRecycleBinService recycleBin,
@@ -230,11 +233,27 @@ public sealed partial class CleanupViewModel : ObservableObject
 
     partial void OnHasResultsChanged(bool value) => RaiseCommandState();
 
+    /// <summary>
+    /// Kicks off a Recycle Bin refresh. The shell query is blocking, so it runs off the UI
+    /// thread; a second call while one is still in flight is ignored.
+    /// </summary>
     public void RefreshRecycleBin()
+    {
+        if (Interlocked.CompareExchange(ref _recycleBinQueryInFlight, 1, 0) != 0)
+        {
+            return;
+        }
+
+        _ = RefreshRecycleBinAsync();
+    }
+
+    private async Task RefreshRecycleBinAsync()
     {
         try
         {
-            var bytes = _recycleBin.GetSizeBytes();
+            var (bytes, count) = await Task
+                .Run(() => (_recycleBin.GetSizeBytes(), _recycleBin.GetItemCount()))
+                .ConfigureAwait(true);
 
             if (bytes is null)
             {
@@ -242,8 +261,6 @@ public sealed partial class CleanupViewModel : ObservableObject
                 CanEmptyRecycleBin = false;
                 return;
             }
-
-            var count = _recycleBin.GetItemCount();
 
             RecycleBinText = string.Format(
                 CultureInfo.CurrentCulture,
@@ -260,6 +277,10 @@ public sealed partial class CleanupViewModel : ObservableObject
             _logger.LogWarning(ex, "Reading the Recycle Bin failed");
             RecycleBinText = "The Recycle Bin could not be read.";
             CanEmptyRecycleBin = false;
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _recycleBinQueryInFlight, 0);
         }
     }
 
@@ -370,6 +391,7 @@ public sealed partial class CleanupViewModel : ObservableObject
         var totalBytes = items.Sum(item => item.SizeBytes);
 
         if (MessageBox.Show(
+                Application.Current?.MainWindow,
                 BuildCleanPrompt(items.Length, totalBytes),
                 "Deep clean",
                 MessageBoxButton.YesNo,
@@ -441,6 +463,7 @@ public sealed partial class CleanupViewModel : ObservableObject
             "Do you want to empty the Recycle Bin?";
 
         if (MessageBox.Show(
+                Application.Current?.MainWindow,
                 confirmation,
                 "Empty the Recycle Bin",
                 MessageBoxButton.YesNo,
@@ -451,6 +474,11 @@ public sealed partial class CleanupViewModel : ObservableObject
         }
 
         IsCleaning = true;
+        HasSummary = false;
+        IsProgressVisible = true;
+        IsProgressIndeterminate = true;
+        ProgressDetail = string.Empty;
+        StatusText = "Emptying the Recycle Bin…";
 
         try
         {
@@ -458,21 +486,26 @@ public sealed partial class CleanupViewModel : ObservableObject
 
             if (error is null)
             {
+                StatusText = "The Recycle Bin is now empty.";
                 Notify("Recycle Bin", "The Recycle Bin is now empty.", ControlAppearance.Success);
             }
             else
             {
+                StatusText = "The Recycle Bin could not be emptied.";
                 Notify("Recycle Bin", "The Recycle Bin could not be emptied: " + error, ControlAppearance.Danger);
             }
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Emptying the Recycle Bin failed");
+            StatusText = "The Recycle Bin could not be emptied.";
             Notify("Recycle Bin", "The Recycle Bin could not be emptied: " + ex.Message, ControlAppearance.Danger);
         }
         finally
         {
             IsCleaning = false;
+            IsProgressVisible = false;
+            ProgressDetail = string.Empty;
             RefreshRecycleBin();
         }
     }
