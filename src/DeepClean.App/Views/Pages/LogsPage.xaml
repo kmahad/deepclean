@@ -1,0 +1,111 @@
+<UserControl
+    x:Class="DeepClean.App.Views.Pages.LogsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:vm="clr-namespace:DeepClean.App.ViewModels"
+    d:DataContext="{d:DesignInstance Type=vm:LogsViewModel}"
+    Background="{DynamicResource ApplicationBackgroundBrush}"
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    mc:Ignorable="d">
+
+    <ScrollViewer Padding="28,20,28,28" VerticalScrollBarVisibility="Auto">
+        <StackPanel MaxWidth="1120" HorizontalAlignment="Stretch">
+
+            <ui:TextBlock FontTypography="TitleLarge" FontWeight="SemiBold" Text="Logs and diagnostics" />
+            <ui:TextBlock
+                Margin="0,4,0,0"
+                Appearance="Secondary"
+                FontTypography="Caption"
+                Text="Everything DeepClean records stays on this computer. Nothing is uploaded anywhere." />
+
+            <StackPanel Margin="0,16,0,0" Orientation="Horizontal">
+                <ui:Button
+                    Command="{Binding RefreshCommand}"
+                    Content="Refresh"
+                    Icon="{ui:SymbolIcon ArrowClockwise24}" />
+                <ui:Button
+                    Margin="8,0,0,0"
+                    Command="{Binding OpenLogFolderCommand}"
+                    Content="Open log folder"
+                    Icon="{ui:SymbolIcon FolderOpen24}" />
+                <ui:Button
+                    Margin="8,0,0,0"
+                    Command="{Binding OpenDataFolderCommand}"
+                    Content="Open data folder"
+                    Icon="{ui:SymbolIcon Storage24}" />
+            </StackPanel>
+
+            <ui:Card Margin="0,18,0,0" Padding="18">
+                <StackPanel>
+                    <ui:TextBlock FontTypography="Subtitle" FontWeight="SemiBold" Text="Diagnostics" />
+                    <ui:TextBlock
+                        Margin="0,2,0,0"
+                        Appearance="Secondary"
+                        FontTypography="Caption"
+                        Text="Useful details to share when something is not working as expected." />
+
+                    <ui:TextBox
+                        Margin="0,12,0,0"
+                        MinHeight="200"
+                        AcceptsReturn="True"
+                        FontFamily="Cascadia Mono, Consolas, Courier New"
+                        FontSize="12"
+                        HorizontalScrollBarVisibility="Auto"
+                        IsReadOnly="True"
+                        Text="{Binding DiagnosticsText, Mode=OneWay}"
+                        TextWrapping="NoWrap"
+                        VerticalScrollBarVisibility="Auto" />
+                </StackPanel>
+            </ui:Card>
+
+            <ui:Card Margin="0,18,0,0" Padding="18">
+                <StackPanel>
+                    <ui:TextBlock FontTypography="Subtitle" FontWeight="SemiBold" Text="Log files" />
+                    <ui:TextBlock
+                        Margin="0,2,0,0"
+                        Appearance="Secondary"
+                        FontTypography="Caption"
+                        Text="{Binding LogFolderPath, StringFormat='Stored in {0}'}" />
+
+                    <Grid Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="320" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <ListBox
+                            Grid.Column="0"
+                            MaxHeight="420"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            DisplayMemberPath="Detail"
+                            ItemsSource="{Binding LogFiles}"
+                            SelectedItem="{Binding SelectedLogFile}" />
+
+                        <StackPanel Grid.Column="1" Margin="16,0,0,0">
+                            <ui:TextBlock
+                                Appearance="Secondary"
+                                FontTypography="Caption"
+                                Text="{Binding PreviewStatusText}" />
+
+                            <ui:TextBox
+                                Height="380"
+                                Margin="0,8,0,0"
+                                AcceptsReturn="True"
+                                FontFamily="Cascadia Mono, Consolas, Courier New"
+                                FontSize="12"
+                                HorizontalScrollBarVisibility="Auto"
+                                IsReadOnly="True"
+                                Text="{Binding PreviewText, Mode=OneWay}"
+                                TextWrapping="NoWrap"
+                                VerticalScrollBarVisibility="Auto" />
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </ui:Card>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

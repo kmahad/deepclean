@@ -1,0 +1,272 @@
+<UserControl
+    x:Class="DeepClean.App.Views.Pages.DashboardPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:controls="clr-namespace:DeepClean.App.Views.Controls"
+    xmlns:vm="clr-namespace:DeepClean.App.ViewModels"
+    d:DataContext="{d:DesignInstance Type=vm:DashboardViewModel}"
+    Background="{DynamicResource ApplicationBackgroundBrush}"
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+    </UserControl.Resources>
+
+    <ScrollViewer Padding="28,20,28,28" VerticalScrollBarVisibility="Auto">
+        <StackPanel MaxWidth="1120" HorizontalAlignment="Stretch">
+
+            <ui:TextBlock FontTypography="TitleLarge" FontWeight="SemiBold" Text="System overview" />
+            <ui:TextBlock
+                Margin="0,4,0,0"
+                Appearance="Secondary"
+                FontTypography="Caption"
+                Text="{Binding UpdatedText}" />
+
+            <Grid Margin="0,20,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!--  Processor  -->
+                <ui:Card
+                    Grid.Column="0"
+                    Margin="0,0,8,0"
+                    Padding="18">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon FontSize="18" Symbol="Gauge24" />
+                            <ui:TextBlock
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                FontTypography="BodyStrong"
+                                Text="Processor" />
+                            <ui:TextBlock
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                Appearance="Secondary"
+                                FontTypography="Caption"
+                                Text="{Binding CpuTemperatureText}" />
+                        </StackPanel>
+
+                        <ui:TextBlock
+                            Margin="0,10,0,0"
+                            FontTypography="TitleLarge"
+                            FontWeight="SemiBold"
+                            Text="{Binding CpuValueText}" />
+
+                        <controls:Sparkline
+                            Height="54"
+                            Margin="0,10,0,0"
+                            Maximum="100"
+                            Stroke="{DynamicResource SystemAccentColorPrimaryBrush}"
+                            Values="{Binding CpuHistory}" />
+                    </StackPanel>
+                </ui:Card>
+
+                <!--  Graphics  -->
+                <ui:Card
+                    Grid.Column="1"
+                    Margin="8,0,8,0"
+                    Padding="18">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon FontSize="18" Symbol="DeveloperBoard24" />
+                            <ui:TextBlock
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                FontTypography="BodyStrong"
+                                Text="Graphics" />
+                            <ui:TextBlock
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                Appearance="Secondary"
+                                FontTypography="Caption"
+                                Text="{Binding GpuTemperatureText}" />
+                        </StackPanel>
+
+                        <ui:TextBlock
+                            Margin="0,10,0,0"
+                            FontTypography="TitleLarge"
+                            FontWeight="SemiBold"
+                            Text="{Binding GpuValueText}" />
+
+                        <controls:Sparkline
+                            Height="54"
+                            Margin="0,10,0,0"
+                            Maximum="100"
+                            Stroke="{DynamicResource SystemFillColorSuccessBrush}"
+                            Values="{Binding GpuHistory}" />
+
+                        <ui:TextBlock
+                            Margin="0,6,0,0"
+                            Appearance="Secondary"
+                            FontTypography="Caption"
+                            Text="{Binding GpuMemoryText, StringFormat='Dedicated memory: {0}'}" />
+                    </StackPanel>
+                </ui:Card>
+
+                <!--  Memory  -->
+                <ui:Card
+                    Grid.Column="2"
+                    Margin="8,0,0,0"
+                    Padding="18">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon FontSize="18" Symbol="DataUsage24" />
+                            <ui:TextBlock
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                FontTypography="BodyStrong"
+                                Text="Memory" />
+                            <ui:TextBlock
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                Appearance="Secondary"
+                                FontTypography="Caption"
+                                Text="{Binding ProcessCount, StringFormat='{}{0} processes'}" />
+                        </StackPanel>
+
+                        <ui:TextBlock
+                            Margin="0,10,0,0"
+                            FontTypography="TitleLarge"
+                            FontWeight="SemiBold"
+                            Text="{Binding MemoryValueText}" />
+
+                        <controls:Sparkline
+                            Height="54"
+                            Margin="0,10,0,0"
+                            Maximum="100"
+                            Stroke="{DynamicResource SystemFillColorCautionBrush}"
+                            Values="{Binding MemoryHistory}" />
+
+                        <ui:TextBlock
+                            Margin="0,6,0,0"
+                            Appearance="Secondary"
+                            FontTypography="Caption"
+                            Text="{Binding MemoryDetailText}" />
+                    </StackPanel>
+                </ui:Card>
+            </Grid>
+
+            <!--  Only shown when the hardware refuses to report sensors  -->
+            <Grid Margin="0,16,0,0">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SensorsAvailable}" Value="False">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+
+                <ui:InfoBar
+                    IsClosable="False"
+                    IsOpen="True"
+                    Message="{Binding SensorStatus}"
+                    Severity="Informational"
+                    Title="Hardware sensors" />
+            </Grid>
+
+            <ui:Card
+                Margin="0,20,0,0"
+                Padding="18"
+                Visibility="{Binding ShowProcessListPanel, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon FontSize="18" Symbol="List24" />
+                        <ui:TextBlock
+                            Margin="8,0,0,0"
+                            VerticalAlignment="Center"
+                            FontTypography="Subtitle"
+                            FontWeight="SemiBold"
+                            Text="Busiest processes" />
+                        <ui:TextBlock
+                            Margin="8,0,0,0"
+                            VerticalAlignment="Center"
+                            Appearance="Secondary"
+                            FontTypography="Caption"
+                            Text="Refreshed while DeepClean is running." />
+                    </StackPanel>
+
+                    <Grid Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="88" />
+                            <ColumnDefinition Width="112" />
+                            <ColumnDefinition Width="76" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBlock
+                            Grid.Column="0"
+                            Appearance="Secondary"
+                            FontTypography="Caption"
+                            FontWeight="SemiBold"
+                            Text="Process" />
+                        <ui:TextBlock
+                            Grid.Column="1"
+                            HorizontalAlignment="Right"
+                            Appearance="Secondary"
+                            FontTypography="Caption"
+                            FontWeight="SemiBold"
+                            Text="CPU %" />
+                        <ui:TextBlock
+                            Grid.Column="2"
+                            HorizontalAlignment="Right"
+                            Appearance="Secondary"
+                            FontTypography="Caption"
+                            FontWeight="SemiBold"
+                            Text="Memory" />
+                        <ui:TextBlock
+                            Grid.Column="3"
+                            HorizontalAlignment="Right"
+                            Appearance="Secondary"
+                            FontTypography="Caption"
+                            FontWeight="SemiBold"
+                            Text="PID" />
+                    </Grid>
+
+                    <Separator Margin="0,6" />
+
+                    <ItemsControl ItemsSource="{Binding Processes}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="88" />
+                                        <ColumnDefinition Width="112" />
+                                        <ColumnDefinition Width="76" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        Text="{Binding Name}"
+                                        TextTrimming="CharacterEllipsis" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Right"
+                                        Text="{Binding CpuText}" />
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        HorizontalAlignment="Right"
+                                        Text="{Binding MemoryText}" />
+                                    <TextBlock
+                                        Grid.Column="3"
+                                        HorizontalAlignment="Right"
+                                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                        Text="{Binding ProcessId}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ui:Card>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

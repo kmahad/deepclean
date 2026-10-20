@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DeepClean.App/DeepClean.App.csproj" />
+    <Project Path="src/DeepClean.Core/DeepClean.Core.csproj" />
+    <Project Path="src/DeepClean.Platform/DeepClean.Platform.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DeepClean.Tests/DeepClean.Tests.csproj" />
+  </Folder>
+</Solution>
