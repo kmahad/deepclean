@@ -145,6 +145,24 @@ public sealed partial class PerformanceViewModel : ObservableObject
         }
     }
 
+    [RelayCommand]
+    private void SelectAll()
+    {
+        foreach (var app in Applications)
+        {
+            app.IsApproved = true;
+        }
+    }
+
+    [RelayCommand]
+    private void ClearSelection()
+    {
+        foreach (var app in Applications)
+        {
+            app.IsApproved = false;
+        }
+    }
+
     private void OnApplicationApprovalChanged(ApprovedApplicationOption option)
     {
         if (_isApplyingSettings)

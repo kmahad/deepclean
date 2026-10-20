@@ -177,7 +177,6 @@ public sealed class WindowsPerformanceModeService : IPerformanceModeService, IDi
                 {
                     if (process.Id != Environment.ProcessId
                         && approved.Contains(process.ProcessName)
-                        && !string.IsNullOrWhiteSpace(process.MainWindowTitle)
                         && process.CloseMainWindow())
                     {
                         closeRequests++;

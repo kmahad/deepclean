@@ -58,11 +58,22 @@
             <ui:Card Margin="0,18,0,0" Padding="18">
                 <StackPanel>
                     <DockPanel>
-                        <ui:Button
-                            DockPanel.Dock="Right"
-                            Command="{Binding RefreshApplicationsCommand}"
-                            Content="Refresh list"
-                            Icon="{ui:SymbolIcon ArrowClockwise24}" />
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                            <ui:Button
+                                Margin="0,0,8,0"
+                                Command="{Binding SelectAllCommand}"
+                                Content="Select all"
+                                Icon="{ui:SymbolIcon CheckmarkCircle24}" />
+                            <ui:Button
+                                Margin="0,0,8,0"
+                                Command="{Binding ClearSelectionCommand}"
+                                Content="Clear selection"
+                                Icon="{ui:SymbolIcon DismissCircle24}" />
+                            <ui:Button
+                                Command="{Binding RefreshApplicationsCommand}"
+                                Content="Refresh list"
+                                Icon="{ui:SymbolIcon ArrowClockwise24}" />
+                        </StackPanel>
                         <ui:TextBlock FontTypography="Subtitle" FontWeight="SemiBold" Text="Apps allowed to close in Gaming mode" />
                     </DockPanel>
                     <ui:TextBlock
