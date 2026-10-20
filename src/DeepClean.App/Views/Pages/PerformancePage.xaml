@@ -1,0 +1,117 @@
+<UserControl
+    x:Class="DeepClean.App.Views.Pages.PerformancePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:vm="clr-namespace:DeepClean.App.ViewModels"
+    d:DataContext="{d:DesignInstance Type=vm:PerformanceViewModel}"
+    Background="{DynamicResource ApplicationBackgroundBrush}"
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </UserControl.Resources>
+
+    <ScrollViewer Padding="28,20,28,28" VerticalScrollBarVisibility="Auto">
+        <StackPanel MaxWidth="1000" HorizontalAlignment="Stretch">
+            <ui:TextBlock FontTypography="TitleLarge" FontWeight="SemiBold" Text="Performance modes" />
+            <ui:TextBlock
+                Margin="0,4,0,0"
+                Appearance="Secondary"
+                FontTypography="Caption"
+                Text="Change Windows power behavior for gaming, battery life, or everyday use." />
+
+            <ui:Card Margin="0,18,0,0" Padding="18">
+                <StackPanel>
+                    <ui:TextBlock FontTypography="Subtitle" FontWeight="SemiBold" Text="Choose a mode" />
+                    <ui:TextBlock
+                        Margin="0,4,0,12"
+                        Appearance="Secondary"
+                        TextWrapping="Wrap"
+                        Text="DeepClean remembers your current power plan and restores it when you return to Normal. Changes last only while DeepClean is running." />
+                    <ComboBox
+                        DisplayMemberPath="Name"
+                        ItemsSource="{Binding ModeOptions}"
+                        SelectedItem="{Binding SelectedMode, Mode=TwoWay}" />
+                    <ui:TextBlock
+                        Margin="0,6,0,0"
+                        Appearance="Secondary"
+                        Text="{Binding SelectedMode.Description}"
+                        TextWrapping="Wrap" />
+                    <StackPanel Margin="0,14,0,0" Orientation="Horizontal">
+                        <ui:Button
+                            Command="{Binding ApplySelectedModeCommand}"
+                            Content="Apply mode"
+                            Icon="{ui:SymbolIcon Flash24}" />
+                    </StackPanel>
+                    <ui:InfoBar
+                        Margin="0,14,0,0"
+                        IsClosable="False"
+                        IsOpen="True"
+                        Message="{Binding StatusText}"
+                        Severity="Informational" />
+                </StackPanel>
+            </ui:Card>
+
+            <ui:Card Margin="0,18,0,0" Padding="18">
+                <StackPanel>
+                    <DockPanel>
+                        <ui:Button
+                            DockPanel.Dock="Right"
+                            Command="{Binding RefreshApplicationsCommand}"
+                            Content="Refresh list"
+                            Icon="{ui:SymbolIcon ArrowClockwise24}" />
+                        <ui:TextBlock FontTypography="Subtitle" FontWeight="SemiBold" Text="Apps allowed to close in Gaming mode" />
+                    </DockPanel>
+                    <ui:TextBlock
+                        Margin="0,5,0,12"
+                        Appearance="Secondary"
+                        TextWrapping="Wrap"
+                        Text="Select apps yourself. Gaming mode sends a normal close request to checked apps; DeepClean never force-terminates them. Save any work first." />
+                    <ItemsControl ItemsSource="{Binding Applications}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <ui:TextBlock FontWeight="SemiBold" Text="{Binding DisplayName}" />
+                                            <Border
+                                                Margin="8,0,0,0"
+                                                Padding="4,0"
+                                                VerticalAlignment="Center"
+                                                Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                                                CornerRadius="4"
+                                                Visibility="{Binding IsBackground, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <ui:TextBlock
+                                                    Appearance="Secondary"
+                                                    FontSize="10"
+                                                    Text="Background" />
+                                            </Border>
+                                        </StackPanel>
+                                        <ui:TextBlock Appearance="Secondary" FontTypography="Caption">
+                                            <Run Text="{Binding ProcessName}" />
+                                            <Run Text=" · " />
+                                            <Run Text="{Binding ProcessCount}" />
+                                            <Run Text=" instance(s)" />
+                                        </ui:TextBlock>
+                                    </StackPanel>
+                                    <CheckBox
+                                        Grid.Column="1"
+                                        VerticalAlignment="Center"
+                                        Content="Allow close"
+                                        IsChecked="{Binding IsApproved, Mode=TwoWay}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ui:Card>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
