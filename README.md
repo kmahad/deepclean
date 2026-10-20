@@ -24,10 +24,15 @@ A modern, lightweight Windows system optimization and cleaning utility built wit
 
 ### 🛠️ In Progress (Phase 4)
 
-- **Performance Modes**:
-  - **Gaming Mode**: Switches to high-performance power plans and gracefully closes user-approved background apps.
-  - **Power Saving Mode**: Optimizes settings for battery life.
-  - **Normal Mode**: Restores your system to its original state.
+- **Performance Modes**: The Performance page switches to Windows high-performance or power-saver plans and restores the plan that was active before DeepClean changed it. Gaming mode only sends graceful close requests to apps the user checked; it never force-terminates processes. The original plan is also restored when DeepClean exits.
+
+#### Phase 4 progress
+
+- [x] Added a Performance page and navigation entry for choosing Normal, Gaming, and Power saving modes.
+- [x] Added Windows power-plan switching, with the pre-change plan retained so Normal mode and app shutdown can restore it.
+- [x] Added a list of open desktop apps with explicit, persisted Gaming mode close approvals.
+- [x] Gaming mode sends graceful close requests only; it does not force-terminate processes.
+- [ ] Validate mode switching and restoration on Windows devices with different available power plans.
 
 ## 🛡️ Safety First
 

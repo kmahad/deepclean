@@ -59,6 +59,10 @@
                         Icon="{ui:SymbolIcon Copy24}"
                         TargetPageType="{x:Type pages:DuplicatesPage}" />
                     <ui:NavigationViewItem
+                        Content="Performance"
+                        Icon="{ui:SymbolIcon Flash24}"
+                        TargetPageType="{x:Type pages:PerformancePage}" />
+                    <ui:NavigationViewItem
                         Content="Logs and diagnostics"
                         Icon="{ui:SymbolIcon DocumentText24}"
                         TargetPageType="{x:Type pages:LogsPage}" />
