@@ -55,9 +55,9 @@ public sealed partial class PerformanceViewModel : ObservableObject
 
         ModeOptions =
         [
-            new PerformanceModeOption("Normal", PerformanceMode.Normal, "Use the power plan that was active before DeepClean changed it."),
-            new PerformanceModeOption("Gaming", PerformanceMode.Gaming, "Use the high-performance plan and ask approved open apps to close."),
-            new PerformanceModeOption("Power saving", PerformanceMode.PowerSaving, "Use the Windows power-saver plan to reduce power use."),
+            new PerformanceModeOption("Normal", PerformanceMode.Normal, "Restore original plan"),
+            new PerformanceModeOption("Gaming", PerformanceMode.Gaming, "Max performance"),
+            new PerformanceModeOption("Power saving", PerformanceMode.PowerSaving, "Reduce power use"),
         ];
 
         SelectedMode = ModeOptions[0];
@@ -67,7 +67,30 @@ public sealed partial class PerformanceViewModel : ObservableObject
 
     public IReadOnlyList<PerformanceModeOption> ModeOptions { get; }
 
-    public IReadOnlyList<ApprovedApplicationOption> Applications { get; private set; } = [];
+    [ObservableProperty]
+    private string _searchText = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FilteredApplications))]
+    private IReadOnlyList<ApprovedApplicationOption> _applications = [];
+
+    public IReadOnlyList<ApprovedApplicationOption> FilteredApplications
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(SearchText))
+            {
+                return Applications;
+            }
+
+            return Applications
+                .Where(app => app.DisplayName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                              app.ProcessName.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+                .ToArray();
+        }
+    }
+
+    partial void OnSearchTextChanged(string value) => OnPropertyChanged(nameof(FilteredApplications));
 
     [ObservableProperty]
     private PerformanceModeOption? _selectedMode;

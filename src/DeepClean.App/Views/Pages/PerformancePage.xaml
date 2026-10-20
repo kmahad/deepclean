@@ -6,59 +6,120 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:vm="clr-namespace:DeepClean.App.ViewModels"
+    xmlns:conv="clr-namespace:DeepClean.App.Converters"
     d:DataContext="{d:DesignInstance Type=vm:PerformanceViewModel}"
     Background="{DynamicResource ApplicationBackgroundBrush}"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     mc:Ignorable="d">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <conv:EqualityConverter x:Key="EqualityConverter" />
+        <conv:ModeToIconConverter x:Key="ModeToIconConverter" />
+
+        <Style x:Key="ToggleButtonCardStyle" TargetType="RadioButton">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <ui:Card
+                            x:Name="Card"
+                            Padding="0"
+                            Cursor="Hand">
+                            <ContentPresenter />
+                        </ui:Card>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource AccentFillColorDefaultBrush}" />
+                                <Setter TargetName="Card" Property="BorderThickness" Value="2" />
+                                <Setter TargetName="Card" Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Card" Property="Background" Value="{DynamicResource ControlFillColorTertiaryBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
-    <ScrollViewer Padding="28,20,28,28" VerticalScrollBarVisibility="Auto">
+    <Grid>
+        <ScrollViewer Padding="28,20,28,28" VerticalScrollBarVisibility="Auto">
         <StackPanel MaxWidth="1000" HorizontalAlignment="Stretch">
             <ui:TextBlock FontTypography="TitleLarge" FontWeight="SemiBold" Text="Performance modes" />
             <ui:TextBlock
                 Margin="0,4,0,0"
                 Appearance="Secondary"
                 FontTypography="Caption"
-                Text="Change Windows power behavior for gaming, battery life, or everyday use." />
+                Text="Optimize your system for gaming or power efficiency with one click." />
 
-            <ui:Card Margin="0,18,0,0" Padding="18">
-                <StackPanel>
-                    <ui:TextBlock FontTypography="Subtitle" FontWeight="SemiBold" Text="Choose a mode" />
-                    <ui:TextBlock
-                        Margin="0,4,0,12"
-                        Appearance="Secondary"
-                        TextWrapping="Wrap"
-                        Text="DeepClean remembers your current power plan and restores it when you return to Normal. Changes last only while DeepClean is running." />
-                    <ComboBox
-                        DisplayMemberPath="Name"
-                        ItemsSource="{Binding ModeOptions}"
-                        SelectedItem="{Binding SelectedMode, Mode=TwoWay}" />
-                    <ui:TextBlock
-                        Margin="0,6,0,0"
-                        Appearance="Secondary"
-                        Text="{Binding SelectedMode.Description}"
-                        TextWrapping="Wrap" />
-                    <StackPanel Margin="0,14,0,0" Orientation="Horizontal">
-                        <ui:Button
-                            Command="{Binding ApplySelectedModeCommand}"
-                            Content="Apply mode"
-                            Icon="{ui:SymbolIcon Flash24}" />
-                    </StackPanel>
-                    <ui:InfoBar
-                        Margin="0,14,0,0"
-                        IsClosable="False"
-                        IsOpen="True"
-                        Message="{Binding StatusText}"
-                        Severity="Informational" />
-                </StackPanel>
-            </ui:Card>
+            <!--  Mode Selection Cards  -->
+            <ItemsControl Margin="0,24,0,0" ItemsSource="{Binding ModeOptions}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="3" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton
+                            Margin="4"
+                            Padding="0"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch"
+                            GroupName="PerformanceModes"
+                            IsChecked="{Binding DataContext.SelectedMode, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource EqualityConverter}, ConverterParameter={Binding}, Mode=TwoWay}"
+                            Style="{StaticResource ToggleButtonCardStyle}">
+                            <Border Padding="16">
+                                <StackPanel VerticalAlignment="Center">
+                                    <ui:SymbolIcon
+                                        Margin="0,0,0,12"
+                                        FontSize="32"
+                                        Symbol="{Binding Value, Converter={StaticResource ModeToIconConverter}}" />
+                                    <ui:TextBlock
+                                        HorizontalAlignment="Center"
+                                        FontTypography="Subtitle"
+                                        FontWeight="SemiBold"
+                                        Text="{Binding Name}" />
+                                    <ui:TextBlock
+                                        Margin="0,4,0,0"
+                                        HorizontalAlignment="Center"
+                                        Appearance="Secondary"
+                                        FontSize="11"
+                                        Text="{Binding Description}"
+                                        TextAlignment="Center"
+                                        TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Border>
+                        </RadioButton>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
-            <ui:Card Margin="0,18,0,0" Padding="18">
+            <ui:Button
+                Margin="4,16,4,0"
+                HorizontalAlignment="Stretch"
+                Command="{Binding ApplySelectedModeCommand}"
+                Content="Apply Selected Mode"
+                Icon="{ui:SymbolIcon Flash24}" />
+
+            <ui:InfoBar
+                Margin="4,16,4,0"
+                IsClosable="False"
+                IsOpen="True"
+                Message="{Binding StatusText}"
+                Severity="Informational" />
+
+            <!--  App Management Card  -->
+            <ui:Card Margin="0,24,0,0" Padding="18">
                 <StackPanel>
                     <DockPanel>
                         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                            <ui:TextBox
+                                Width="200"
+                                Margin="0,0,12,0"
+                                Icon="{ui:SymbolIcon Search24}"
+                                PlaceholderText="Search apps..."
+                                Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
                             <ui:Button
                                 Margin="0,0,8,0"
                                 Command="{Binding SelectAllCommand}"
@@ -71,58 +132,81 @@
                                 Icon="{ui:SymbolIcon DismissCircle24}" />
                             <ui:Button
                                 Command="{Binding RefreshApplicationsCommand}"
-                                Content="Refresh list"
+                                Content="Refresh"
                                 Icon="{ui:SymbolIcon ArrowClockwise24}" />
                         </StackPanel>
-                        <ui:TextBlock FontTypography="Subtitle" FontWeight="SemiBold" Text="Apps allowed to close in Gaming mode" />
+                        <ui:TextBlock
+                            VerticalAlignment="Center"
+                            FontTypography="Subtitle"
+                            FontWeight="SemiBold"
+                            Text="Gaming Mode App Control" />
                     </DockPanel>
+
                     <ui:TextBlock
-                        Margin="0,5,0,12"
+                        Margin="0,8,0,16"
                         Appearance="Secondary"
                         TextWrapping="Wrap"
-                        Text="Select apps yourself. Gaming mode sends a normal close request to checked apps; DeepClean never force-terminates them. Save any work first." />
-                    <ItemsControl ItemsSource="{Binding Applications}">
+                        Text="DeepClean sends graceful close requests to approved apps in Gaming mode. No data is lost." />
+
+                    <ItemsControl ItemsSource="{Binding FilteredApplications}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Grid Margin="0,4">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel>
-                                        <StackPanel Orientation="Horizontal">
-                                            <ui:TextBlock FontWeight="SemiBold" Text="{Binding DisplayName}" />
-                                            <Border
-                                                Margin="8,0,0,0"
-                                                Padding="4,0"
-                                                VerticalAlignment="Center"
-                                                Background="{DynamicResource SubtleFillColorSecondaryBrush}"
-                                                CornerRadius="4"
-                                                Visibility="{Binding IsBackground, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                <ui:TextBlock
-                                                    Appearance="Secondary"
-                                                    FontSize="10"
-                                                    Text="Background" />
-                                            </Border>
+                                <ui:Card Margin="0,4" Padding="12">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <ui:TextBlock FontWeight="SemiBold" Text="{Binding DisplayName}" />
+                                                <Border
+                                                    Margin="8,0,0,0"
+                                                    Padding="6,2"
+                                                    VerticalAlignment="Center"
+                                                    Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                                                    CornerRadius="4"
+                                                    Visibility="{Binding IsBackground, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <ui:TextBlock
+                                                        Appearance="Secondary"
+                                                        FontSize="10"
+                                                        FontWeight="Bold"
+                                                        Text="BACKGROUND" />
+                                                </Border>
+                                            </StackPanel>
+                                            <ui:TextBlock
+                                                Margin="0,2,0,0"
+                                                Appearance="Secondary"
+                                                FontTypography="Caption">
+                                                <Run Text="{Binding ProcessName}" />
+                                                <Run Text=" · " />
+                                                <Run Text="{Binding ProcessCount}" />
+                                                <Run Text=" instance(s)" />
+                                            </ui:TextBlock>
                                         </StackPanel>
-                                        <ui:TextBlock Appearance="Secondary" FontTypography="Caption">
-                                            <Run Text="{Binding ProcessName}" />
-                                            <Run Text=" · " />
-                                            <Run Text="{Binding ProcessCount}" />
-                                            <Run Text=" instance(s)" />
-                                        </ui:TextBlock>
-                                    </StackPanel>
-                                    <CheckBox
-                                        Grid.Column="1"
-                                        VerticalAlignment="Center"
-                                        Content="Allow close"
-                                        IsChecked="{Binding IsApproved, Mode=TwoWay}" />
-                                </Grid>
+                                        <CheckBox
+                                            Grid.Column="1"
+                                            VerticalAlignment="Center"
+                                            IsChecked="{Binding IsApproved, Mode=TwoWay}" />
+                                    </Grid>
+                                </ui:Card>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </StackPanel>
             </ui:Card>
         </StackPanel>
-    </ScrollViewer>
+        </ScrollViewer>
+
+        <!--  Loading Overlay  -->
+        <Grid Background="{DynamicResource ApplicationBackgroundBrush}" Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ui:ProgressRing IsIndeterminate="True" />
+                <ui:TextBlock
+                    Margin="0,12,0,0"
+                    Appearance="Secondary"
+                    Text="Scanning background tasks..." />
+            </StackPanel>
+        </Grid>
+    </Grid>
 </UserControl>
