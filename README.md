@@ -6,12 +6,21 @@ A modern, lightweight Windows system optimization and cleaning utility built wit
 
 ### ✅ Completed
 
+**Phase 0–1 — Foundation & Monitoring**
+
 - **Fluent Dashboard**: Real-time monitoring of CPU, GPU, and RAM usage with high-performance sparklines.
-- **Deep Clean Scanner**: Safely identifies and removes temporary files, browser caches, update logs, and system leftovers.
-- **Duplicate File Finder**: A three-pass, hash-based engine that finds identical files. It prioritizes safety by forcing personal folder copies to the Recycle Bin.
 - **System Tray Integration**: Quick access to all features and real-time resource monitoring from the Windows taskbar.
-- **Safety Guard**: A multi-tier protection system that prevents the accidental deletion of critical Windows folders.
 - **Modern UI**: Dark-themed, Fluent design language using [WPF-UI](https://github.com/lepoco/wpfui).
+
+**Phase 2 — Deep Clean Scanner**
+
+- **Deep Clean Scanner**: Safely identifies and removes temporary files, browser caches, update logs, and system leftovers.
+- **Safety Guard**: A multi-tier protection system that prevents the accidental deletion of critical Windows folders.
+
+**Phase 3 — Duplicate File Finder**
+
+- **Duplicate File Finder**: A three-pass, hash-based engine that finds identical files. It prioritizes safety by forcing personal folder copies to the Recycle Bin.
+- **Nothing Pre-Selected**: Copies are never ticked for you — the oldest copy in each set is only suggested as the one to keep, and only the copies you explicitly review and select are removed.
 
 ### 🛠️ In Progress (Phase 4)
 
@@ -46,7 +55,7 @@ A modern, lightweight Windows system optimization and cleaning utility built wit
 
 ```powershell
 # Clone the repository
-git clone https://github.com/your-username/DeepClean.git
+git clone https://github.com/kmahad/deepclean.git
 cd DeepClean
 
 # Run the application
